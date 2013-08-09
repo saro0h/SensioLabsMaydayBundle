@@ -5,21 +5,26 @@
 		<script type="text/javascript">var sln_customiser_path = '{{ path('sensiolabs_mayday_sln') }}';</script>
 
 		{% stylesheets
-			'@SensioLabsMaydayBundle/Resources/assets/css/*'
-			'http://connect.sensiolabs.com/css/sln.css'
+            '@SensioLabsMaydayBundle/Resources/assets/css/*'
+            'http://connect.sensiolabs.com/css/sln.css'
+            'http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css'
+            'http://bootswatch.com/cosmo/bootstrap.min.css'
 		%}
 			<link rel="stylesheet" href="{{ asset_url }}" />
 		{% endstylesheets %}
 
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+
 		{% javascripts
-			'@SensioLabsMaydayBundle/Resources/assets/js/*'
-			'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'
-			'http://connect.sensiolabs.com/sln.js'
+            '@SensioLabsMaydayBundle/Resources/assets/js/*'
+            'http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js'
+            'http://connect.sensiolabs.com/sln.js'
 		%}
 			<script type="text/javascript" src="{{ asset_url }}"></script>
 		{% endjavascripts %}
 	</head>
 	<body>
 		<div id="sln"></div>
+        <div class="container">{% block body '' %}</div>
 	</body>
 </html>

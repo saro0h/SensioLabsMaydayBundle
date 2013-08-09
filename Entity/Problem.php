@@ -3,7 +3,10 @@
 namespace SensioLabs\Bundle\MaydayBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Colections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection;
+use SensioLabs\Bundle\MaydayBundle\Form\ProblemDTO;
+use SensioLabs\Connect\Api\Api;
+use SensioLabs\Connect\Api\Entity\User;
 
 /**
  * Represent a problem to resolve.
@@ -13,7 +16,7 @@ use Doctrine\Common\Colections\ArrayCollection;
  * @ORM\Table(name="mayday_problem")
  * @ORM\Entity()
  */
-class Problem 
+class Problem
 {
     /**
      * @var int
@@ -27,9 +30,9 @@ class Problem
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", name="user_uuid")
      */
-    private $username;
+    private $userUuid;
 
     /**
      * @var string
@@ -50,32 +53,95 @@ class Problem
      *
      * @ORM\Column(type="json_array")
      */
-    private $notifications;
+    private $notifications = array();
 
     /**
-     * @var ArrayCollection 
+     * @var Genius|null
      *
-     * @ORM\OneToMany(targetEntity="Kiss", mappedBy="problem")
+     * @ORM\ManyToOne(targetEntity="Genius")
+     * @ORM\JoinColumn(name="genius_uuid", referencedColumnName="uuid")
      */
-    private $kisses;
+    private $agent;
 
-    public function __construct()
+    /**
+     * @param ProblemDTO $dto
+     */
+    public function __construct(ProblemDTO $dto)
     {
-    	$this->kisses = new ArrayCollection();
+        $this->update($dto);
     }
 
     /**
-     * Rewards a genius.
-     * 
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * @param Genius $genius
      *
      * @return Problem
      */
-    public function reward(Genius $genius)
+    public function handle(Genius $genius)
     {
-    	$kiss = new Kiss($genius, $this);
-    	$this->kisses[] = $kiss;
+        $this->agent = $genius;
 
-    	return $this;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isHandled()
+    {
+        return null !== $this->agent;
+    }
+
+    /**
+     * Rewards a genius.
+     *
+     * @return Problem
+     */
+    public function reward()
+    {
+    	return new Kiss($this->agent, $this->description);
+    }
+
+    /**
+     * @param ProblemDTO $dto
+     */
+    public function update(ProblemDTO $dto)
+    {
+        $this->userUuid = $dto->user->get('uuid');
+        $this->description = $dto->description;
+        $this->priority = $dto->priority;
+    }
+
+    /**
+     * Returns problem DTO.
+     */
+    public function getDTO(Api $api)
+    {
+        $dto = new ProblemDTO();
+        $dto->priority = $this->priority;
+        $dto->description = $this->description;
+        $dto->user = $api->getRoot()->getUser($this->userUuid);
+
+        return $dto;
+    }
+
+    /**
+     * Returns problem DTO.
+     */
+    public function getAgent(Api $api)
+    {
+        return $this->agent ? $api->getRoot()->getUser($this->agent->getUuid()) : null;
+    }
+
+    public function isAdmin(User $user)
+    {
+        return $user->get('uuid') === $this->userUuid;
     }
 }

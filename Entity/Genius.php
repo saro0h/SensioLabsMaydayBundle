@@ -3,7 +3,8 @@
 namespace SensioLabs\Bundle\MaydayBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Colections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection;
+use SensioLabs\Connect\Api\Api;
 
 /**
  * Represent a guy who resolves the request.
@@ -21,31 +22,37 @@ class Genius
      * @ORM\Id
      * @ORM\Column(type="string")
      */
-    private $username;
+    private $uuid;
 
     /**
-     * @var ArrayCollection 
+     * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="Kiss", mappedBy="genius")
      */
     private $kisses;
 
-    public function __construct()
+    public function __construct($uuid)
     {
+        $this->uuid = $uuid;
     	$this->kisses = new ArrayCollection();
+    }
+
+    public function getUuid()
+    {
+        return $this->uuid;
     }
 
     /**
      * Kisses genius.
-     * 
+     *
      * @param Kiss $kiss
      *
      * @return Genius
      */
     public function kiss(Kiss $kiss)
     {
-    	if (!in_array($kiss, $kisses, true)) {
-    		$this->kisses[] = $kiss;
+    	if (!$this->kisses->contains($kiss)) {
+    		$this->kisses->add($kiss);
     	}
 
     	return $this;

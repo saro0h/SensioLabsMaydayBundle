@@ -1,1 +1,13 @@
 {% extends 'SensioLabsMaydayBundle::layout.html.twig' %}
+
+{% block body %}
+    {{ include('SensioLabsMaydayBundle:Problem:create.html.twig', { form: creation_form }) }}
+
+    <ul class="problems">
+        {% for problem in problems %}
+            {{ render(controller('SensioLabsMaydayBundle:Problem:show', { problem: problem })) }}
+        {% else %}
+            <li>Pas de problème.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

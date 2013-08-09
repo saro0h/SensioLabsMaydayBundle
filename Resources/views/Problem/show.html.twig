@@ -1,0 +1,32 @@
+<li class="priority-{{ dto.priority }}">
+    <img src="https://connect.sensiolabs.com/api/images/{{ dto.user.uuid }}.png" />
+    <strong>{{ dto.user.username }}</strong>
+    <p>{{ dto.description }}</p>
+
+    {% if agent %}
+        <strong>Géré par:</strong> {{ agent.username }}
+        <img src="https://connect.sensiolabs.com/api/images/{{ agent.uuid }}.png" />
+
+        {% if admin %}
+            <form action="{{ path('sensiolabs_mayday_problem_reward') }}" method="post">
+                <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+                <button type="submit">
+                    <img src="http://icons.iconarchive.com/icons/aha-soft/dating/16/kiss-icon.png" width="16" height="16" />
+                    Merci, bisou !
+                </button>
+            </form>
+        {% endif %}
+    {% else %}
+        <form action="{{ path('sensiolabs_mayday_problem_handle') }}" method="post">
+            <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+            <button type="submit">Je gère !</button>
+        </form>
+    {% endif %}
+
+    {% if admin %}
+        <form action="{{ path('sensiolabs_mayday_problem_remove') }}" method="post">
+            <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+            <button type="submit">Okay, c'est bon ...</button>
+        </form>
+    {% endif %}
+</li>

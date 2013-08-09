@@ -2,21 +2,23 @@
 
 namespace SensioLabs\Bundle\MaydayBundle\Service;
 
-use SensioLabs\Bundle\MaydayBundle\Model\Problem;
+use SensioLabs\Bundle\MaydayBundle\Entity\Problem;
 
-interface ProblemRepositoryInterface 
+interface ProblemRepositoryInterface
 {
     /**
      * Lists problems.
-     * 
+     *
      * @return Problem[]
      */
-    public function list();
+    public function all();
 
     /**
      * Finds a problem by its id.
-     * 
-     * @return Problem[]
+     *
+     * @param int $id
+     *
+     * @return Problem
      *
      * @throws \InvalidArgumentException
      */
@@ -24,7 +26,7 @@ interface ProblemRepositoryInterface
 
     /**
      * Saves a problem.
-     * 
+     *
      * @param Problem $problem
      */
     public function save(Problem $problem);

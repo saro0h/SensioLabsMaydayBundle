@@ -3,9 +3,9 @@
 namespace SensioLabs\Bundle\MaydayBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as BaseController;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as Conf;
-use SensioLabs\Connect\Api\Entity\User;
+use SensioLabs\Connect\Security\Authentication\Token\ConnectToken;
 
 class SlnController extends BaseController
 {
@@ -15,11 +15,8 @@ class SlnController extends BaseController
      */
     public function indexAction()
     {
-        $user = $this->get('security.context')->getToken()->getApiUser();
-
-        if (!$user instanceof User) {
-            $user = null;
-        }
+        $token = $this->get('security.context')->getToken();
+        $user = $token instanceof ConnectToken ? $token->getApiUser() : null;
 
         return array('user' => $user);
     }

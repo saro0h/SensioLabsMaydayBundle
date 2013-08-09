@@ -19,18 +19,9 @@ class Kiss
      *
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="Genius", inversedBy="Kiss")
-     * @ORM\JoinColumn(name="genius_username", referencedColumnName="username")
+     * @ORM\JoinColumn(name="genius_uuid", referencedColumnName="uuid")
      */
     private $genius;
-
-    /**
-     * @var Problem
-     *
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Problem", inversedBy="Kiss")
-     * @ORM\JoinColumn(name="problem_id", referencedColumnName="id")
-     */
-    private $problem;
 
     /**
      * @var \DateTime
@@ -40,13 +31,11 @@ class Kiss
     private $date;
 
     /**
-     * @param Genius  $genius
-     * @param Problem $problem
+     * @param Genius $genius
      */
-    public function __construct(Genius $genius, Problem $problem)
+    public function __construct(Genius $genius)
     {
-        $this->genius = $genius;
-        $this->problem = $problem;
+        $this->genius = $genius->kiss($this);
         $this->date = new \DateTime();
     }
 }
