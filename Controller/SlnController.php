@@ -5,20 +5,26 @@ namespace SensioLabs\Bundle\MaydayBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller as BaseController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as Conf;
+use SensioLabs\Connect\Api\Entity\User;
 use SensioLabs\Connect\Security\Authentication\Token\ConnectToken;
 
 class SlnController extends BaseController
 {
     /**
-     * @Conf\Route("/sln_customiser.js", name="sensiolabs_mayday_sln")
+     * @Conf\Route("/sln_customiser.js", name="sln_customize")
      * @Conf\Template("SensioLabsMaydayBundle:Sln:index.js.twig")
      */
     public function indexAction()
     {
         $token = $this->get('security.context')->getToken();
+        
         $user = $token instanceof ConnectToken ? $token->getApiUser() : null;
 
-        return array('user' => $user);
+        /*if ($token instanceof ConnectToken) {
+        	return array('user' => $token->getApiUser());
+        }*/
+
+    	return array('user' => null);
     }
 
     /**
