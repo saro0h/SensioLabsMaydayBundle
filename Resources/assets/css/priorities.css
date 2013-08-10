@@ -19,3 +19,11 @@
 .priority-3 {
     border-left: 10px solid #3fb618;
 }
+
+.right {
+    float: right;
+}
+
+#problem-create {
+    display: none;
+}

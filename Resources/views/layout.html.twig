@@ -10,25 +10,17 @@
 		%}
 			<link rel="stylesheet" href="{{ asset_url }}" />
 		{% endstylesheets %}
-
-		<style type="text/css">
-			* {
-				margin: 0;
-				padding: 0;
-			}
-		</style>
-
-		{% javascripts
-			'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'
-			'@SensioLabsMaydayBundle/Resources/assets/js/*'
-		%}
-			<script type="text/javascript" src="{{ asset_url }}"></script>
-		{% endjavascripts %}
 	</head>
 	<body>
 		<div id="sln"></div>
         <div class="container">{% block body '' %}</div>
 
+        {% javascripts
+        'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'
+        '@SensioLabsMaydayBundle/Resources/assets/js/*'
+        %}
+        <script type="text/javascript" src="{{ asset_url }}"></script>
+        {% endjavascripts %}
 		<script>
             (function(w, d, s) {
                 function go() {

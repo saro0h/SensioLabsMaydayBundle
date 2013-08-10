@@ -28,7 +28,15 @@ class ProblemType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('description', 'textarea')
+            ->add('description', 'textarea', array(
+                    'label'  => 'Description de ton problème',
+                    'attr'   =>  array(
+                        'class'   => 'form-control',
+                        'rows'    => '3',
+                        'column'    => '3'
+                    )
+                )
+            )
             ->add('priority', 'choice', array('choices' => $this->priorities))
             ->addEventSubscriber(new ProblemSubscriber($this->context))
         ;

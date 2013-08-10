@@ -22,7 +22,7 @@ class ProblemController extends Controller
      */
     public function welcomeAction()
     {
-        if ($this->get('security.context')->isGranted('AUTHENTICATED_FULLY')) {
+        if ($this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
         }
         return array();
@@ -33,6 +33,9 @@ class ProblemController extends Controller
      */
     public function listAction()
     {
+        if (!$this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return $this->redirect($this->generateUrl('sensiolabs_maday_welcome'));
+        }
         $creationForm = $this->createForm('sensiolabs_mayday_problem');
 
         return array(

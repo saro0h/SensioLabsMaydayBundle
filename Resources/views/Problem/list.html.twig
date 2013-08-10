@@ -2,7 +2,13 @@
 
 {% block body %}
     {{ include('SensioLabsMaydayBundle:Problem:create.html.twig', { form: creation_form }) }}
-
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
+                <h1 id=forms>Liste des problèmes</h1>
+            </div>
+        </div>
+    </div>
     <ul class="problems">
         {% for problem in problems %}
             {{ render(controller('SensioLabsMaydayBundle:Problem:show', { problem: problem })) }}
