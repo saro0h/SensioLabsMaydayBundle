@@ -8,12 +8,25 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as Conf;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @author Sarah Khalil <sarah.khalil@sensiolabs.com>
  */
 class ProblemController extends Controller
 {
+    /**
+     * @Conf\Route("/welcome", name="sensiolabs_maday_welcome")
+     * @Conf\Template()
+     */
+    public function welcomeAction()
+    {
+        if ($this->get('security.context')->isGranted('AUTHENTICATED_FULLY')) {
+            return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
+        }
+        return array();
+    }
     /**
      * @Conf\Route("/", name="sensiolabs_maday_problem_list")
      * @Conf\Template()
@@ -52,10 +65,10 @@ class ProblemController extends Controller
     public function showAction(Problem $problem)
     {
         $api = $this->get('sensiolabs_connect.api');
+
         $api->setAccessToken($this->container->get('security.context')->getToken()->getAccessToken());
         $agent = $problem->getAgent($api);
         $user = $this->get('security.context')->getToken()->getApiUser();
-
         return array('dto' => $problem->getDTO($api), 'problem' => $problem, 'agent' => $agent, 'admin' => $problem->isAdmin($user));
     }
 

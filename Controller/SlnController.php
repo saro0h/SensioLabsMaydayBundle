@@ -18,13 +18,9 @@ class SlnController extends BaseController
     {
         $token = $this->get('security.context')->getToken();
         
-        //$user = $token instanceof ConnectToken ? $token->getApiUser() : null;
+        $user = $token instanceof ConnectToken ? $token->getApiUser() : null;
 
-        if ($token instanceof ConnectToken) {
-        	return array('user' => $token->getApiUser());
-        }
-
-    	return array('user' => null);
+    	return array('user' => $user);
     }
 
     /**
