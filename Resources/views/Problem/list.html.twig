@@ -9,11 +9,10 @@
             </div>
         </div>
     </div>
-    <ul class="problems">
-        {% for problem in problems %}
-            {{ render(controller('SensioLabsMaydayBundle:Problem:show', { problem: problem })) }}
-        {% else %}
-            <li>Pas de problème.</li>
-        {% endfor %}
-    </ul>
+
+    {% for problem in problems %}
+        {{ render(controller('SensioLabsMaydayBundle:Problem:show', { problem: problem })) }}
+    {% else %}
+        <div class="well">Pas de problème.</div>
+    {% endfor %}
 {% endblock %}

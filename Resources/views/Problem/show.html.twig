@@ -1,32 +1,59 @@
-<li class="priority-{{ dto.priority }}">
-    <img src="https://connect.sensiolabs.com/api/images/{{ dto.user.uuid }}.png" />
-    <strong>{{ dto.user.username }}</strong>
-    <p>{{ dto.description }}</p>
+<div class="well priority-{{ dto.priority }}">
+    <fieldset>
+        <legend>
+            <img src="https://connect.sensiolabs.com/api/images/{{ dto.user.uuid }}.png" />
+            <u>Posté par</u><strong> : {{ dto.user.username }}</strong>
 
-    {% if agent %}
-        <strong>Géré par:</strong> {{ agent.username }}
-        <img src="https://connect.sensiolabs.com/api/images/{{ agent.uuid }}.png" />
+            {% if agent %}
+                | <u>Géré par</u> : <img src="https://connect.sensiolabs.com/api/images/{{ agent.uuid }}.png" /> {{ agent.username }}
+            {% endif %}
+        </legend>
 
-        {% if admin %}
-            <form action="{{ path('sensiolabs_mayday_problem_reward') }}" method="post">
-                <input type="hidden" name="problem_id" value="{{ problem.id }}" />
-                <button type="submit">
-                    <img src="http://icons.iconarchive.com/icons/aha-soft/dating/16/kiss-icon.png" width="16" height="16" />
-                    Merci, bisou !
-                </button>
-            </form>
+        <p>{{ dto.description }}</p>
+
+    </fieldset>
+
+    <div class="button-set">
+        {% if agent %}
+            {% if admin %}
+                <div class="right">
+                    <form action="{{ path('sensiolabs_mayday_problem_reward') }}" method="post">
+                        <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+                        <button class="btn btn-default" type="submit">
+                            <img src="http://icons.iconarchive.com/icons/aha-soft/dating/16/kiss-icon.png" width="16" height="16" />
+                            Merci, bisou à {{ agent.username }}!
+                        </button>
+                    </form>
+                </div>
+                <div class="clear"></div>
+            {% else %}
+                <div class="right">
+                    <form action="{{ path('sensiolabs_mayday_problem_handle') }}" method="post">
+                        <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+                        <button class="btn btn-success" type="submit">Je gère !</button>
+                    </form>
+                </div>
+            {% endif %}
+        {% else %}
+            {% if admin %}
+                <div class="right">
+                    <form action="{{ path('sensiolabs_mayday_problem_remove') }}" method="post">
+                        <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+                        <button class="btn btn-default right" type="submit">C'est bon j'ai trouvé finalement</button>
+                    </form>
+                </div>
+                <div class="clear"></div>
+            {% else %}
+                <div class="right">
+                    <form action="{{ path('sensiolabs_mayday_problem_handle') }}" method="post">
+                        <input type="hidden" name="problem_id" value="{{ problem.id }}" />
+                        <button class="btn btn-success" type="submit">J'men occupe !</button>
+                    </form>
+                </div>
+                <div class="clear"></div>
+            {% endif %}
         {% endif %}
-    {% else %}
-        <form action="{{ path('sensiolabs_mayday_problem_handle') }}" method="post">
-            <input type="hidden" name="problem_id" value="{{ problem.id }}" />
-            <button type="submit">Je gère !</button>
-        </form>
-    {% endif %}
 
-    {% if admin %}
-        <form action="{{ path('sensiolabs_mayday_problem_remove') }}" method="post">
-            <input type="hidden" name="problem_id" value="{{ problem.id }}" />
-            <button type="submit">Okay, c'est bon ...</button>
-        </form>
-    {% endif %}
-</li>
+    </div>
+</div>
+<div class="clear"></div>

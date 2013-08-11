@@ -22,8 +22,16 @@
 
 .right {
     float: right;
+    margin-right: 3px;
 }
 
 #problem-create {
     display: none;
+}
+
+.button-set {
+}
+
+.clear {
+    clear: both;
 }

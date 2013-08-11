@@ -37,7 +37,11 @@ class ProblemType extends AbstractType
                     )
                 )
             )
-            ->add('priority', 'choice', array('choices' => $this->priorities))
+            ->add('priority', 'choice', array(
+                'expanded' => true,
+                'choices' => $this->priorities
+                )
+            )
             ->addEventSubscriber(new ProblemSubscriber($this->context))
         ;
     }
