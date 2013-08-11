@@ -26,13 +26,6 @@
                     </form>
                 </div>
                 <div class="clear"></div>
-            {% else %}
-                <div class="right">
-                    <form action="{{ path('sensiolabs_mayday_problem_handle') }}" method="post">
-                        <input type="hidden" name="problem_id" value="{{ problem.id }}" />
-                        <button class="btn btn-success" type="submit">Je gère !</button>
-                    </form>
-                </div>
             {% endif %}
         {% else %}
             {% if admin %}
