@@ -14,7 +14,7 @@ use SensioLabs\Connect\Api\Entity\User;
  * @author Sarah Khalil <sarah.khalil@sensiolabs.com>
  *
  * @ORM\Table(name="mayday_problem")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="SensioLabs\Bundle\MaydayBundle\Entity\ProblemRepository")
  */
 class Problem
 {
@@ -37,7 +37,7 @@ class Problem
     /**
      * @var string
      *
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      */
     private $description;
 

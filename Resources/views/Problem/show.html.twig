@@ -7,7 +7,9 @@
             {% if agent %}
                 | <u>Géré par</u> : <img src="https://connect.sensiolabs.com/api/images/{{ agent.uuid }}.png" /> {{ agent.username }}
             {% endif %}
+
         </legend>
+        {{ include('SensioLabsMaydayBundle:Problem:priority.html.twig', { priority:  dto.priority, priorities: priorities }) }}
 
         <p>{{ dto.description }}</p>
 

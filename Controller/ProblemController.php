@@ -38,9 +38,13 @@ class ProblemController extends Controller
         }
         $creationForm = $this->createForm('sensiolabs_mayday_problem');
 
+        $em = $this->getDoctrine()->getManager();
+        $problems = $em->getRepository('SensioLabsMaydayBundle:Problem')
+            ->findAllOrderedById();
+
         return array(
             'creation_form' => $creationForm->createView(),
-            'problems' => $this->getDoctrine()->getRepository('SensioLabsMaydayBundle:Problem')->findAll(),
+            'problems'      => $problems,
         );
     }
 
@@ -72,7 +76,14 @@ class ProblemController extends Controller
         $api->setAccessToken($this->container->get('security.context')->getToken()->getAccessToken());
         $agent = $problem->getAgent($api);
         $user = $this->get('security.context')->getToken()->getApiUser();
-        return array('dto' => $problem->getDTO($api), 'problem' => $problem, 'agent' => $agent, 'admin' => $problem->isAdmin($user));
+
+        return array(
+            'dto'        => $problem->getDTO($api),
+            'problem'    => $problem,
+            'agent'      => $agent,
+            'admin'      => $problem->isAdmin($user),
+            'priorities' => $this->container->getParameter('sensiolabs_mayday.config.priorities'),
+        );
     }
 
     /**
