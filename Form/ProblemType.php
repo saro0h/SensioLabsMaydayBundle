@@ -5,20 +5,19 @@ namespace SensioLabs\Bundle\MaydayBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\Security\Core\SecurityContext;
 
 class ProblemType extends AbstractType
 {
-    private $context;
+    /**
+     * @var string[]
+     */
     private $priorities;
 
     /**
-     * @param SecurityContext $context
-     * @param array           $priorities
+     * @param string[] $priorities
      */
-    public function __construct(SecurityContext $context, array $priorities)
+    public function __construct(array $priorities)
     {
-        $this->context = $context;
         $this->priorities = $priorities;
     }
 
@@ -28,21 +27,8 @@ class ProblemType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('description', 'textarea', array(
-                    'label'  => 'Description de ton problème',
-                    'attr'   =>  array(
-                        'class'   => 'form-control',
-                        'rows'    => '3',
-                        'column'    => '3'
-                    )
-                )
-            )
-            ->add('priority', 'choice', array(
-                'expanded' => true,
-                'choices' => $this->priorities
-                )
-            )
-            ->addEventSubscriber(new ProblemSubscriber($this->context))
+            ->add('description', 'textarea')
+            ->add('priority', 'choice', array('expanded' => true, 'choices' => $this->priorities))
         ;
     }
 

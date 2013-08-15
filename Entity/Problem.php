@@ -3,10 +3,8 @@
 namespace SensioLabs\Bundle\MaydayBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use SensioLabs\Bundle\MaydayBundle\Form\ProblemDTO;
 use SensioLabs\Connect\Api\Api;
-use SensioLabs\Connect\Api\Entity\User;
 
 /**
  * Represent a problem to resolve.
@@ -14,10 +12,15 @@ use SensioLabs\Connect\Api\Entity\User;
  * @author Sarah Khalil <sarah.khalil@sensiolabs.com>
  *
  * @ORM\Table(name="mayday_problem")
- * @ORM\Entity(repositoryClass="SensioLabs\Bundle\MaydayBundle\Entity\ProblemRepository")
+ * @ORM\Entity(repositoryClass="SensioLabs\Bundle\MaydayBundle\Repository\ProblemRepository")
  */
 class Problem
 {
+    const STATUS_NEW      = 'new';
+    const STATUS_HANDLED  = 'handled';
+    const STATUS_RESOLVED = 'resolved';
+    const STATUS_CANCELED = 'canceled';
+
     /**
      * @var int
      *
@@ -32,7 +35,7 @@ class Problem
      *
      * @ORM\Column(type="string", name="user_uuid")
      */
-    private $userUuid;
+    private $owner;
 
     /**
      * @var string
@@ -49,64 +52,29 @@ class Problem
     private $priority;
 
     /**
-     * @var array
+     * @var User|null
      *
-     * @ORM\Column(type="json_array")
-     */
-    private $notifications = array();
-
-    /**
-     * @var Genius|null
-     *
-     * @ORM\ManyToOne(targetEntity="Genius")
-     * @ORM\JoinColumn(name="genius_uuid", referencedColumnName="uuid")
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="agent_uuid", referencedColumnName="uuid")
      */
     private $agent;
 
     /**
+     * @var User|null
+     *
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="resolver_uuid", referencedColumnName="uuid")
+     */
+    private $resolver;
+
+    /**
+     * @param User       $owner
      * @param ProblemDTO $dto
      */
-    public function __construct(ProblemDTO $dto)
+    public function __construct(User $owner, ProblemDTO $dto)
     {
+        $this->owner = $owner;
         $this->update($dto);
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param Genius $genius
-     *
-     * @return Problem
-     */
-    public function handle(Genius $genius)
-    {
-        $this->agent = $genius;
-
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isHandled()
-    {
-        return null !== $this->agent;
-    }
-
-    /**
-     * Rewards a genius.
-     *
-     * @return Problem
-     */
-    public function reward()
-    {
-    	return new Kiss($this->agent, $this->description);
     }
 
     /**
@@ -114,34 +82,97 @@ class Problem
      */
     public function update(ProblemDTO $dto)
     {
-        $this->userUuid = $dto->user->get('uuid');
         $this->description = $dto->description;
         $this->priority = $dto->priority;
     }
 
     /**
-     * Returns problem DTO.
+     * Problem handled by given user.
+     *
+     * @param User $agent
+     *
+     * @return Problem
+     *
+     * @throws \LogicException
      */
-    public function getDTO(Api $api)
+    public function handle(User $agent)
     {
-        $dto = new ProblemDTO();
-        $dto->priority = $this->priority;
-        $dto->description = $this->description;
-        $dto->user = $api->getRoot()->getUser($this->userUuid);
+        if (null !== $this->agent) {
+            throw new \LogicException(sprintf('This problem is already handled by "%s"".', $this->agent));
+        }
 
-        return $dto;
+        $this->agent = $agent;
+
+        return $this;
     }
 
     /**
-     * Returns problem DTO.
+     * Problem solved by given user.
+     *
+     * @param User $resolver
+     *
+     * @return Problem
+     *
+     * @throws \LogicException
      */
-    public function getAgent(Api $api)
+    public function resolve(User $resolver)
     {
-        return $this->agent ? $api->getRoot()->getUser($this->agent->getUuid()) : null;
+        if (null !== $this->resolver) {
+            throw new \LogicException(sprintf('This problem is already resolved by "%s"".', $this->resolver));
+        }
+
+        $this->resolver = $resolver;
+
+        return $this;
     }
 
-    public function isAdmin(User $user)
+    /**
+     * Problem canceled by its owner.
+     *
+     * @return Problem
+     */
+    public function cancel()
     {
-        return $user->get('uuid') === $this->userUuid;
+        return $this->resolve($this->owner);
+    }
+
+    /**
+     * Returns problem status.
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        if (null !== $this->resolver) {
+            return self::STATUS_RESOLVED;
+        }
+
+        if (null !== $this->agent) {
+            return self::STATUS_HANDLED;
+        }
+
+        if ($this->resolver === $this->owner) {
+            return self::STATUS_CANCELED;
+        }
+
+        return self::STATUS_NEW;
+    }
+
+    /**
+     * Returns problem as an array.
+     *
+     * @return array
+     */
+    public function asArray()
+    {
+        return array(
+            'id'          => $this->id,
+            'description' => $this->description,
+            'priority'    => $this->priority,
+            'status'      => $this->getStatus(),
+            'owner'       => $this->owner->asArray(),
+            'agent'       => $this->agent ? $this->agent->asArray() : null,
+            'resolver'    => $this->resolver ? $this->resolver->asArray() : null,
+        );
     }
 }

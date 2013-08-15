@@ -15,27 +15,54 @@ use Doctrine\ORM\Mapping as ORM;
 class Kiss
 {
     /**
-     * @var Genius
+     * @var User
      *
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Genius", inversedBy="kisses")
-     * @ORM\JoinColumn(name="genius_uuid", referencedColumnName="uuid")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="kisses")
+     * @ORM\JoinColumn(name="user_uuid", referencedColumnName="uuid")
      */
-    private $genius;
+    private $user;
+
+    /**
+     * @var User
+     *
+     * @ORM\Id
+     * @ORM\ManyToOne(targetEntity="Problem", inversedBy="kisses")
+     * @ORM\JoinColumn(name="problem_id", referencedColumnName="id")
+     */
+    private $problem;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(name="date", type="datetime")
      */
     private $date;
 
     /**
-     * @param Genius $genius
+     * @param User    $user
+     * @param Problem $problem
      */
-    public function __construct(Genius $genius)
+    public function __construct(User $user, Problem $problem)
     {
-        $this->genius = $genius->kiss($this);
+        $this->user = $user;
+        $this->problem = $problem;
         $this->date = new \DateTime();
+    }
+
+    /**
+     * Returns kiss as an array.
+     *
+     * Note that user is not returned as it could
+     * lead to circular reference errors.
+     *
+     * @return array
+     */
+    public function asArray()
+    {
+        return array(
+            'problem' => $this->problem->asArray(),
+            'date'    => $this->date->format('Y-m-d H:i:s'),
+        );
     }
 }
