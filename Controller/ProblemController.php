@@ -2,165 +2,150 @@
 
 namespace SensioLabs\Bundle\MaydayBundle\Controller;
 
-use SensioLabs\Bundle\MaydayBundle\Entity\Genius;
-use SensioLabs\Bundle\MaydayBundle\Entity\Problem;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as Conf;
+use SensioLabs\Bundle\MaydayBundle\Entity\Problem;
+use SensioLabs\Bundle\MaydayBundle\Repository\ProblemRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @author Sarah Khalil <sarah.khalil@sensiolabs.com>
+ * Problem controller.
+ *
+ * @author Jean-François Simon <contact@jfsimon.fr>
+ *
+ * @Conf\Route("/problems")
  */
 class ProblemController extends Controller
 {
     /**
-     * @Conf\Route("/welcome", name="sensiolabs_maday_welcome")
+     * Activity action.
+     *
+     * @Conf\Route("/")
      * @Conf\Template()
+     *
+     * @return array
      */
-    public function welcomeAction()
+    public function activityAction()
     {
-        if ($this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
+        $problems = $this->getRepository()->listActiveOnes();
+
+        return array('problems' => $problems);
+    }
+
+    /**
+     * Archives action.
+     *
+     * @Conf\Route("/archive")
+     * @Conf\Template()
+     *
+     * @return array
+     */
+    public function archivesAction()
+    {
+        $problems = $this->getRepository()->listArchivedOnes();
+
+        return array('problems' => $problems);
+    }
+
+    /**
+     * Problem creation action.
+     *
+     * @Conf\Route("/create")
+     * @Conf\Method("POST")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function createAction(Request $request)
+    {
+        $form = $this->createForm('sensiolabs_mayday_problem')->submit($request);
+
+        if ($form->isValid()) {
+            $problem = new Problem($this->getUser(), $form->getData());
+            $this->getRepository()->save($problem);
+
+            return $this->broadcastResponse('problem_created', $problem->asArray());
         }
-        return array();
-    }
-    /**
-     * @Conf\Route("/", name="sensiolabs_maday_problem_list")
-     * @Conf\Template()
-     */
-    public function listAction()
-    {
-        if (!$this->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->redirect($this->generateUrl('sensiolabs_maday_welcome'));
-        }
-        $creationForm = $this->createForm('sensiolabs_mayday_problem');
 
-        $em = $this->getDoctrine()->getManager();
-        $problems = $em->getRepository('SensioLabsMaydayBundle:Problem')
-            ->findAllOrderedById();
-
-        return array(
-            'creation_form' => $creationForm->createView(),
-            'problems'      => $problems,
-        );
+        return new JsonResponse(array('status' => 'form_error', 'form' => $form->createView()));
     }
 
     /**
-     * @Conf\Route("/create", name="sensiolabs_maday_problem_create")
-     * @Conf\Method("post")
-     * @Conf\Template()
-     */
-    public function createAction()
-    {
-        $creationForm = $this->createForm('sensiolabs_mayday_problem')->submit($this->getRequest());
-
-        if ($creationForm->isValid()) {
-            $this->save(new Problem($creationForm->getData()));
-
-            return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
-        }
-
-        return array('form' => $creationForm->createView());
-    }
-
-    /**
-     * @Conf\Template()
-     */
-    public function showAction(Problem $problem)
-    {
-        $api = $this->get('sensiolabs_connect.api');
-
-        $api->setAccessToken($this->container->get('security.context')->getToken()->getAccessToken());
-        $agent = $problem->getAgent($api);
-        $user = $this->get('security.context')->getToken()->getApiUser();
-
-        return array(
-            'dto'        => $problem->getDTO($api),
-            'problem'    => $problem,
-            'agent'      => $agent,
-            'admin'      => $problem->isAdmin($user),
-            'priorities' => $this->container->getParameter('sensiolabs_mayday.config.priorities'),
-        );
-    }
-
-    /**
-     * @Conf\Route("/handle", name="sensiolabs_mayday_problem_handle")
-     * @Conf\Method("post")
-     */
-    public function handleAction(Request $request)
-    {
-        $this->save($this->getProblem($request)->handle($this->getGenius($this->get('security.context')->getToken()->getApiUser()->get('uuid'))));
-
-        return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
-    }
-
-    /**
-     * @Conf\Route("/remove", name="sensiolabs_mayday_problem_remove")
-     * @Conf\Method("post")
-     */
-    public function removeAction(Request $request)
-    {
-        $this->remove($this->getProblem($request)->handle($this->getGenius($this->get('security.context')->getToken()->getApiUser()->get('uuid'))));
-
-        return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
-    }
-
-    /**
-     * @Conf\Route("/reward", name="sensiolabs_mayday_problem_reward")
-     * @Conf\Method("post")
-     */
-    public function rewardAction(Request $request)
-    {
-        $problem = $this->getProblem($request)->handle($this->getGenius($this->get('security.context')->getToken()->getApiUser()->get('uuid')));
-        $this->save($problem->reward());
-        $this->remove($problem);
-
-        return $this->redirect($this->generateUrl('sensiolabs_maday_problem_list'));
-    }
-
-    /**
+     * Problem handled action.
+     *
+     * @Conf\Route("/handle")
+     * @Conf\Method("POST")
+     *
      * @param Problem $problem
+     *
+     * @return JsonResponse
      */
-    private function save($object)
+    public function handleAction(Problem $problem)
     {
-        $this->getDoctrine()->getManager()->persist($object);
-        $this->getDoctrine()->getManager()->flush();
+        $this->getRepository()->save($problem->handle($this->getUser()));
+
+        return $this->broadcastResponse('problem_handled', $this->getUser()->asArray());
     }
 
     /**
+     * Problem resolved action.
+     *
+     * @Conf\Route("/{id}/resolve")
+     * @Conf\Method("POST")
+     *
      * @param Problem $problem
+     *
+     * @return JsonResponse
      */
-    private function remove(Problem $problem)
+    public function resolveAction(Problem $problem)
     {
-        $this->getDoctrine()->getManager()->remove($problem);
-        $this->getDoctrine()->getManager()->flush();
+        $this->getRepository()->save($problem->resolve($this->getUser()));
+
+        return $this->broadcastResponse('problem_resolved', $this->getUser()->asArray());
     }
 
-    private function getGenius($uuid)
+    /**
+     * Problem resolved action.
+     *
+     * @Conf\Route("/cancel")
+     * @Conf\Method("POST")
+     *
+     * @param Problem $problem
+     *
+     * @return JsonResponse
+     */
+    public function cancelAction(Problem $problem)
     {
-        $repository = $this->getDoctrine()->getRepository('SensioLabsMaydayBundle:Genius');
-        $genius = $repository->find($uuid);
+        $this->getRepository()->save($problem->cancel());
 
-        if (null === $genius) {
-            $genius = new Genius($uuid);
-            $this->getDoctrine()->getManager()->persist($genius);
-            $this->getDoctrine()->getManager()->flush();
-        }
-
-        return $genius;
+        return $this->broadcastResponse('problem_canceled');
     }
 
-    private function getProblem(Request $request)
+    /**
+     * Returns problem repository.
+     *
+     * @return ProblemRepository
+     */
+    private function getRepository()
     {
-        $problem = $this->getDoctrine()->getRepository('SensioLabsMaydayBundle:Problem')->find($request->request->get('problem_id'));
+        return $this->getDoctrine()->getRepository('SensioLabsMaydayBundle:Problem');
+    }
 
-        if (null === $problem) {
-            throw new NotFoundHttpException(sprintf('No problem found with "%s" ID.', $request->request->get('problem_id')));
-        }
+    /**
+     * Broadcasts a message and returns an empty response.
+     *
+     * @param string $type
+     * @param array  $data
+     *
+     * @return Response
+     */
+    private function broadcastResponse($type, array $data = array())
+    {
+        $this->get('sensiolabs_mayday.react.remote')->broadcast($type, $data);
 
-        return $problem;
+        return new Response(204);
     }
 }

@@ -18,9 +18,10 @@ class SensioLabsMaydayExtension extends Extension
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('form.xml');
+        $loader->load('react.xml');
 
         $config = $this->processConfiguration(new Configuration(), $configs);
+        $container->setParameter('sensiolabs_mayday.react.port', $config['react_port']);
         $container->setParameter('sensiolabs_mayday.config.priorities', $config['priorities']);
-
     }
 }

@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('react_port')->defaultValue(1337)->end()
                 ->arrayNode('priorities')
                     ->useAttributeAsKey('id')
                     ->prototype('scalar')->cannotBeEmpty()->end()
