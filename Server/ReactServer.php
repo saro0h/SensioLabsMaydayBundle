@@ -1,14 +1,16 @@
 <?php
 
-namespace SensioLabs\Bundle\MaydayBundle\React;
+namespace SensioLabs\Bundle\MaydayBundle\Server;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 
 /**
+ * React server remote control.
+ *
  * @author Jean-François Simon <contact@jfsimon.fr>
  */
-class Server
+class ReactServer
 {
     /**
      * @var string
@@ -107,18 +109,21 @@ class Server
     /**
      * Broadcasts a command to all react server clients.
      *
-     * @param string $command
+     * @param string $event
      * @param array  $parameters
      *
      * @return boolean
      *
      * @throws \Exception
      */
-    public function broadcast($command, array $parameters)
+    public function broadcast($event, array $parameters = array())
     {
         $process = proc_open(sprintf(
-            'nc -w 1 localhost %s < <(echo "%s:%s" ; cat)',
-            $this->port, $command, escapeshellarg(json_encode($parameters))
+            'nc -w 1 localhost %s < <(echo "%s" ; cat)',
+            $this->port, escapeshellarg(json_encode(array(
+                'event'      => $event,
+                'parameters' => $parameters,
+            )))
         ), array(), $pipes);
 
         $info = proc_get_status($process);

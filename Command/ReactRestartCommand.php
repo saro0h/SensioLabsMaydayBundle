@@ -29,18 +29,11 @@ class ReactRestartCommand extends AbstractReactCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($this->getReactServer()->ping()) {
-            if ($this->getReactServer()->stop()) {
-                $output->writeln('<info>React server is now stopped.</info>');
-
-                if ($this->getReactServer()->start()) {
-                    $output->writeln('<info>React server is now started.</info>');
-                } else {
-                    $output->writeln('<error>React server failed to start.</error>');
-                }
-            } else {
-                $output->writeln('<error>React server failed to stop.</error>');
-            }
+        if ($this->pingServer($output)) {
+            $this->stopServer($output);
+            $this->startServer($output);
+        } else {
+            $this->startServer($output);
         }
     }
 }

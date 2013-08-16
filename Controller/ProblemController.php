@@ -4,6 +4,7 @@ namespace SensioLabs\Bundle\MaydayBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as Conf;
 use SensioLabs\Bundle\MaydayBundle\Entity\Problem;
+use SensioLabs\Bundle\MaydayBundle\Notifier\Notification;
 use SensioLabs\Bundle\MaydayBundle\Repository\ProblemRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -67,7 +68,7 @@ class ProblemController extends Controller
             $problem = new Problem($this->getUser(), $form->getData());
             $this->getRepository()->save($problem);
 
-            return $this->broadcastResponse('problem_created', $problem->asArray());
+            return $this->notify(new Notification('problem.created', $problem->asArray()));
         }
 
         return new JsonResponse(array('status' => 'form_error', 'form' => $form->createView()));
@@ -87,7 +88,7 @@ class ProblemController extends Controller
     {
         $this->getRepository()->save($problem->handle($this->getUser()));
 
-        return $this->broadcastResponse('problem_handled', $this->getUser()->asArray());
+        return $this->notify(new Notification('problem.handled', $this->getUser()->asArray()));
     }
 
     /**
@@ -104,7 +105,7 @@ class ProblemController extends Controller
     {
         $this->getRepository()->save($problem->resolve($this->getUser()));
 
-        return $this->broadcastResponse('problem_resolved', $this->getUser()->asArray());
+        return $this->notify(new Notification('problem.resolved', $this->getUser()->asArray()));
     }
 
     /**
@@ -121,7 +122,7 @@ class ProblemController extends Controller
     {
         $this->getRepository()->save($problem->cancel());
 
-        return $this->broadcastResponse('problem_canceled');
+        return $this->notify(new Notification('problem.canceled'));
     }
 
     /**
@@ -135,16 +136,15 @@ class ProblemController extends Controller
     }
 
     /**
-     * Broadcasts a message and returns an empty response.
+     * Broadcasts a notification to clients.
      *
-     * @param string $type
-     * @param array  $data
+     * @param Notification $notification
      *
      * @return Response
      */
-    private function broadcastResponse($type, array $data = array())
+    private function notify(Notification $notification)
     {
-        $this->get('sensiolabs_mayday.react.remote')->broadcast($type, $data);
+        $this->get('sensiolabs_mayday.notifier')->notify($notification);
 
         return new Response(204);
     }

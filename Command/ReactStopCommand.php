@@ -29,12 +29,6 @@ class ReactStopCommand extends AbstractReactCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (!$this->getReactServer()->ping()) {
-            $output->writeln('<comment>React server is not started.</comment>');
-        } elseif ($this->getReactServer()->stop()) {
-            $output->writeln('<info>React server is now stopped.</info>');
-        } else {
-            $output->writeln('<error>React server failed to stop.</error>');
-        }
+        $this->stopServer($output);
     }
 }

@@ -21,7 +21,7 @@ class ReactBroadcastCommand extends AbstractReactCommand
         $this
             ->setName('mayday:react:broadcast')
             ->addArgument('type', InputArgument::REQUIRED, 'Command name')
-            ->addArgument('parameters', InputArgument::OPTIONAL, 'Command arguments as json', '[]')
+            ->addArgument('parameters', InputArgument::OPTIONAL, 'Command arguments as json', '{}')
             ->setDescription('Broadcasts command through react.')
         ;
     }
@@ -31,10 +31,13 @@ class ReactBroadcastCommand extends AbstractReactCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($this->getReactServer()->ping()) {
-            $this->getReactServer()->broadcast($input->getArgument('type'), json_decode($input->getArgument('parameters')));
-        } else {
-            $output->writeln('<error>Failed to ping react server.</error>');
+        if (!$this->pingServer($output)) {
+            return 1;
         }
+
+        $this->getReactServer()->broadcast(
+            $input->getArgument('type'),
+            json_decode($input->getArgument('parameters'), true)
+        );
     }
 }

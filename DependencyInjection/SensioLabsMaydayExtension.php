@@ -8,6 +8,8 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
+ * Mayday DIC extension.
+ *
  * @author Jean-François Simon <jeanfrancois.simon@sensiolabs.com>
  */
 class SensioLabsMaydayExtension extends Extension
@@ -18,10 +20,11 @@ class SensioLabsMaydayExtension extends Extension
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('form.xml');
-        $loader->load('react.xml');
+        $loader->load('notifier.xml');
+        $loader->load('server.xml');
 
-        $config = $this->processConfiguration(new Configuration(), $configs);
-        $container->setParameter('sensiolabs_mayday.react.port', $config['react_port']);
-        $container->setParameter('sensiolabs_mayday.config.priorities', $config['priorities']);
+        foreach ($this->processConfiguration(new Configuration(), $configs) as $key => $value) {
+            $container->setParameter('sensiolabs_mayday.'.$key, $value);
+        }
     }
 }

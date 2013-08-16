@@ -6,11 +6,14 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
+ * Mayday configuration builder.
+ *
  * @author Jean-François Simon <jeanfrancois.simon@sensiolabs.com>
  */
 class Configuration implements ConfigurationInterface
 {
     /**
+     * {@inheritdoc}
      */
     public function getConfigTreeBuilder()
     {

@@ -29,7 +29,7 @@ $socket->on('connection', function (\React\Socket\Connection $newConnection) use
 });
 
 echo "Socket server listening on port $port.\n";
-echo "You can connect to it by running: telnet localhost $port\n";
+echo "You can connect to it by running: nc localhost $port\n";
 
 $socket->listen($port);
 $loop->run();

@@ -29,12 +29,6 @@ class ReactStartCommand extends AbstractReactCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($this->getReactServer()->ping()) {
-            $output->writeln('<comment>React server is already started.</comment>');
-        } elseif ($this->getReactServer()->start()) {
-            $output->writeln('<info>React server is now started.</info>');
-        } else {
-            $output->writeln('<error>React server failed to start.</error>');
-        }
+        $this->startServer($output);
     }
 }
