@@ -1,0 +1,25 @@
+{% extends 'SensioLabsMaydayBundle::layout.html.twig' %}
+
+{% block body %}
+    <ul id="problems"></ul>
+    <button type="button" id="add-problem">add problem</button>
+    <button type="button" id="remove-problem">remove problem</button>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        var problems = new mayday.Problems($('#problems'), [
+            {'id': 1, 'description': 'Problem 1 description', 'status': 'new', 'owner': {'username': 'User 1'}},
+            {'id': 2, 'description': 'Problem 2 description', 'status': 'handled', 'owner': {'username': 'User 2'}},
+            {'id': 3, 'description': 'Problem 3 description', 'status': 'resolved', 'owner': {'username': 'User 3'}}
+        ]).render();
+
+        $('#add-problem').click(function() {
+            problems.add({'id': 4, 'description': 'Problem 4 description', 'owner': {'username': 'User 4'}});
+        });
+
+        $('#remove-problem').click(function() {
+            problems.remove(2);
+        });
+    </script>
+{% endblock %}

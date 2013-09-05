@@ -5,14 +5,15 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="sensiolabs_mayday.server.react.class">SensioLabs\Bundle\MaydayBundle\Server\ReactServer</parameter>
+        <parameter key="sensiolabs_mayday.twig.extension.class">SensioLabs\Bundle\MaydayBundle\Twig\MaydayExtension</parameter>
     </parameters>
 
     <services>
-        <service id="sensiolabs_mayday.server.react" class="%sensiolabs_mayday.server.react.class%">
-            <argument>%sensiolabs_mayday.config.react_run_file_path%</argument>
-            <argument>%sensiolabs_mayday.config.react_pid_file_path%</argument>
+        <service id="sensiolabs_mayday.twig.extension" class="%sensiolabs_mayday.twig.extension.class%">
+            <argument type="service" id="doctrine" />
+            <argument>%sensiolabs_mayday.config.react_host%</argument>
             <argument>%sensiolabs_mayday.config.react_port%</argument>
+            <tag name="twig.extension" />
         </service>
     </services>
 </container>

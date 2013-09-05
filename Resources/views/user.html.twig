@@ -1,0 +1,12 @@
+<li>
+    <a class="user" data-toggle="dropdown">
+        {% if user %}
+            <img src="{{ user.picture }}" />
+        {% else %}
+            Not registered.
+        {% endif %}
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="https://connect.sensiolabs.com/logout">Logout</a></li>
+    </ul>
+</li>

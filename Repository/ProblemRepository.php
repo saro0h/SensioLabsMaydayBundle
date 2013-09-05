@@ -21,7 +21,7 @@ class ProblemRepository extends EntityRepository
             ->leftJoin('a.kisses', 'ak')
             ->where('p.resolver is null')
             ->orderBy('p.priority', 'desc')
-            ->orderBy('p.date', 'desc')
+            ->orderBy('p.createdAt', 'desc')
             ->getQuery()
             ->getResult();
     }
@@ -38,7 +38,7 @@ class ProblemRepository extends EntityRepository
             ->innerJoin('p.owner', 'o')
             ->leftJoin('p.resolver', 'r')
             ->where('p.resolver is not null')
-            ->orderBy('p.date', 'desc')
+            ->orderBy('p.createdAt', 'desc')
             ->getQuery()
             ->getResult();
     }

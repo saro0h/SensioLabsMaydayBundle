@@ -1,0 +1,24 @@
+<div class="navbar navbar-fixed-top">
+    <div class="container">
+        {% if is_granted("ROLE_CONNECT_USER") %}
+            <ul class="nav navbar-nav">
+                <li><a href="{{ path("mayday_problem_activity") }}">Activity</a></li>
+                <li><a href="{{ path("mayday_problem_archives") }}">Archives</a></li>
+            </ul>
+        {% endif %}
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a class="indicator" data-toggle="dropdown">
+                    <span id="react-status" class="react">-</span>
+                </a>
+                <ul class="dropdown-menu" id="users-list"></ul>
+            </li>
+            <li><a class="indicator"><span class="notifications">12</span></a></li>
+            {% if is_granted("ROLE_CONNECT_USER") %}
+                {{ mayday_user(app.user.username) }}
+            {% else %}
+                <li><a class="connect" href="{{ url('sensiolabs_connect_new_session') }}">Connect</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

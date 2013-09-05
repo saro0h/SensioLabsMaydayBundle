@@ -27,7 +27,7 @@ class Kiss
      * @var User
      *
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Problem", inversedBy="kisses")
+     * @ORM\ManyToOne(targetEntity="Problem")
      * @ORM\JoinColumn(name="problem_id", referencedColumnName="id")
      */
     private $problem;

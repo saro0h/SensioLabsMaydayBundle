@@ -1,0 +1,12 @@
+{% extends "SensioLabsMaydayBundle::layout.html.twig" %}
+
+{% block body %}
+    <div class="jumbotron">
+        <h1>Mayday!</h1>
+        <p>
+            You got a problem? You want to solve problems?
+            Then connect and go on!
+        </p>
+        <p><a href="{{ url('sensiolabs_connect_new_session') }}" class="btn btn-primary btn-large">Connect »</a></p>
+    </div>
+{% endblock %}

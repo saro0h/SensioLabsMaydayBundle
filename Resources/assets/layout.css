@@ -1,0 +1,37 @@
+body {
+    padding-top: 70px;
+}
+
+.navbar-right > li > a,
+.navbar-right > li > a:hover {
+    padding: 10px 5px !important;
+    cursor: pointer;
+}
+
+.navbar-nav span.react,
+.navbar-nav span.notifications {
+    background: grey;
+    width: 30px;
+    line-height: 30px;
+    display: inline-block;
+    text-align: center;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+}
+
+.navbar-nav span.react.up {
+    background: #4cae4c;
+}
+
+.navbar-nav span.react.down {
+    background: red;
+}
+
+.navbar-nav span.notifications {
+    background: #357ebd;
+}
+
+.navbar-nav > li > a.user > img {
+    border-radius: 4px;
+}

@@ -10,8 +10,14 @@ $socket = new React\Socket\Server($loop);
 $connections = new \SplObjectStorage();
 
 $socket->on('connection', function (\React\Socket\Connection $newConnection) use ($connections, $masterAddress) {
+    file_put_contents('/tmp/log', $newConnection->getRemoteAddress()."\n", FILE_APPEND);
     $connections->attach($newConnection);
+    file_put_contents('/tmp/log', ($newConnection->isReadable()?'r':'')."\n", FILE_APPEND);
+    file_put_contents('/tmp/log', ($newConnection->isWritable()?'w':'')."\n", FILE_APPEND);
+    $status = $newConnection->write('hello');
+    file_put_contents('/tmp/log', ($status?'ok':'ko')."\n", FILE_APPEND);
 
+    // broadcasts data from application
     if ($masterAddress === $newConnection->getRemoteAddress()) {
         $newConnection->on('data', function ($data) use ($connections, $newConnection, $masterAddress) {
             /** @var \React\Socket\Connection $clientConnection */
@@ -23,6 +29,14 @@ $socket->on('connection', function (\React\Socket\Connection $newConnection) use
         });
     }
 
+    // ping-pong
+    $newConnection->on('data', function ($data) use ($newConnection) {
+        if ('ping' === $data) {
+            $newConnection->write('pong');
+        }
+    });
+
+    // connection closed
     $newConnection->on('end', function () use ($connections, $newConnection) {
         $connections->detach($newConnection);
     });

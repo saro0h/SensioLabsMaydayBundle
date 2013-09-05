@@ -33,7 +33,8 @@ class Problem
     /**
      * @var string
      *
-     * @ORM\Column(type="string", name="user_uuid")
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="owner_uuid", referencedColumnName="uuid")
      */
     private $owner;
 
@@ -68,6 +69,27 @@ class Problem
     private $resolver;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="handled_at", type="datetime")
+     */
+    private $handledAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="resolved_at", type="datetime")
+     */
+    private $resolvedAt;
+
+    /**
      * @param User       $owner
      * @param ProblemDTO $dto
      */
@@ -75,6 +97,7 @@ class Problem
     {
         $this->owner = $owner;
         $this->update($dto);
+        $this->createdAt = new \DateTime();
     }
 
     /**
@@ -102,28 +125,19 @@ class Problem
         }
 
         $this->agent = $agent;
+        $this->handledAt = new \DateTime();
 
         return $this;
     }
 
     /**
-     * Problem solved by given user.
-     *
-     * @param User $resolver
+     * Problem resolved by its agent.
      *
      * @return Problem
-     *
-     * @throws \LogicException
      */
-    public function resolve(User $resolver)
+    public function reward()
     {
-        if (null !== $this->resolver) {
-            throw new \LogicException(sprintf('This problem is already resolved by "%s"".', $this->resolver));
-        }
-
-        $this->resolver = $resolver;
-
-        return $this;
+        return $this->resolve($this->agent);
     }
 
     /**
@@ -174,5 +188,26 @@ class Problem
             'agent'       => $this->agent ? $this->agent->asArray() : null,
             'resolver'    => $this->resolver ? $this->resolver->asArray() : null,
         );
+    }
+
+    /**
+     * Problem solved by given user.
+     *
+     * @param User $resolver
+     *
+     * @return Problem
+     *
+     * @throws \LogicException
+     */
+    private function resolve(User $resolver)
+    {
+        if (null !== $this->resolver) {
+            throw new \LogicException(sprintf('This problem is already resolved by "%s"".', $this->resolver));
+        }
+
+        $this->resolver = $resolver;
+        $this->resolvedAt = new \DateTime();
+
+        return $this;
     }
 }

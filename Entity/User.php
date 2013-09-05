@@ -13,7 +13,7 @@ use SensioLabs\Connect\Api\Entity\User as ConnectUser;
  * @author Jean-François Simon <contact@jfsimon.fr>
  *
  * @ORM\Table(name="mayday_user")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="SensioLabs\Bundle\MaydayBundle\Repository\UserRepository")
  */
 class User
 {
@@ -66,7 +66,6 @@ class User
     public function __construct(ConnectUser $connectUser)
     {
         $this->uuid = $connectUser->get('uuid');
-        $this->setup($connectUser);
         $this->kisses = new ArrayCollection();
     }
 
@@ -81,17 +80,26 @@ class User
     }
 
     /**
-     * Updates user using connect API.
+     * Updates user with the given connect user.
      *
-     * @param Api $api
+     * @param ConnectUser $connectUser
      *
      * @return User
+     *
+     * @throws \InvalidArgumentException
      */
-    public function update(Api $api)
+    public function update(ConnectUser $connectUser)
     {
-        $connectUser = $api->getRoot()->getUser($this->uuid);
+        if ($this->uuid !== $connectUser->get('uuid')) {
+            throw new \InvalidArgumentException('You try to update the wrong user.');
+        }
 
-        return $this->setup($connectUser);
+        $this->username = $connectUser->get('username');
+        $this->email = $connectUser->get('email');
+        $this->picture = sprintf('https://connect.sensiolabs.com/api/images/%s.png', $this->uuid);
+        $this->profile = sprintf('https://connect.sensiolabs.com/profile/%s', $this->username);
+
+        return $this;
     }
 
     /**
@@ -109,28 +117,5 @@ class User
             'profile'  => $this->profile,
             'kisses'   => $this->kisses->map(function (Kiss $kiss) { return $kiss->asArray(); }),
         );
-    }
-
-    /**
-     * Setups user with the given connect user.
-     *
-     * @param ConnectUser $connectUser
-     *
-     * @return User
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function setup(ConnectUser $connectUser)
-    {
-        if ($this->uuid !== $connectUser->get('uuid')) {
-            throw new \InvalidArgumentException('You try to update the wrong user.');
-        }
-
-        $this->username = $connectUser->get('username');
-        $this->email = $connectUser->get('email');
-        $this->picture = sprintf('https://connect.sensiolabs.com/api/images/%s.png', $this->username);
-        $this->profile = sprintf('https://connect.sensiolabs.com/profile/%s', $this->username);
-
-        return $this;
     }
 }

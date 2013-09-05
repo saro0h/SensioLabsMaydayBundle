@@ -23,7 +23,7 @@ class ProblemController extends Controller
     /**
      * Activity action.
      *
-     * @Conf\Route("/")
+     * @Conf\Route("/", name="mayday_problem_activity")
      * @Conf\Template()
      *
      * @return array
@@ -38,7 +38,7 @@ class ProblemController extends Controller
     /**
      * Archives action.
      *
-     * @Conf\Route("/archive")
+     * @Conf\Route("/archives", name="mayday_problem_archives")
      * @Conf\Template()
      *
      * @return array
@@ -53,7 +53,7 @@ class ProblemController extends Controller
     /**
      * Problem creation action.
      *
-     * @Conf\Route("/create")
+     * @Conf\Route("/create", name="mayday_problem_create")
      * @Conf\Method("POST")
      *
      * @param Request $request
@@ -77,12 +77,12 @@ class ProblemController extends Controller
     /**
      * Problem handled action.
      *
-     * @Conf\Route("/handle")
+     * @Conf\Route("/handle", name="mayday_problem_handle")
      * @Conf\Method("POST")
      *
      * @param Problem $problem
      *
-     * @return JsonResponse
+     * @return Response
      */
     public function handleAction(Problem $problem)
     {
@@ -92,31 +92,31 @@ class ProblemController extends Controller
     }
 
     /**
-     * Problem resolved action.
+     * Problem rewarded action.
      *
-     * @Conf\Route("/{id}/resolve")
+     * @Conf\Route("/{id}/resolve", name="mayday_problem_reward")
      * @Conf\Method("POST")
      *
      * @param Problem $problem
      *
-     * @return JsonResponse
+     * @return Response
      */
-    public function resolveAction(Problem $problem)
+    public function rewardAction(Problem $problem)
     {
-        $this->getRepository()->save($problem->resolve($this->getUser()));
+        $this->getRepository()->save($problem->reward($this->getUser()));
 
-        return $this->notify(new Notification('problem.resolved', $this->getUser()->asArray()));
+        return $this->notify(new Notification('problem.rewarded', $this->getUser()->asArray()));
     }
 
     /**
-     * Problem resolved action.
+     * Problem canceled action.
      *
-     * @Conf\Route("/cancel")
+     * @Conf\Route("/cancel", name="mayday_problem_cancel")
      * @Conf\Method("POST")
      *
      * @param Problem $problem
      *
-     * @return JsonResponse
+     * @return Response
      */
     public function cancelAction(Problem $problem)
     {

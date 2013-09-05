@@ -4,43 +4,45 @@
 		<title>The mayday application</title>
 
 		{% stylesheets
-			'@SensioLabsMaydayBundle/Resources/assets/css/*'
-            'http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css'
-            'http://bootswatch.com/cosmo/bootstrap.min.css'
+			'@SensioLabsMaydayBundle/Resources/assets/*.css'
+            'http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap.min.css'
+            'http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css'
 		%}
 			<link rel="stylesheet" href="{{ asset_url }}" />
 		{% endstylesheets %}
 	</head>
 	<body>
-		<div id="sln"></div>
-        <div class="container">{% block body '' %}</div>
+        {% include "SensioLabsMaydayBundle::header.html.twig" %}
+
+        <div class="container" id="body">
+            {% block body '' %}
+        </div>
 
         {% javascripts
-        'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'
-        '@SensioLabsMaydayBundle/Resources/assets/js/*'
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'
+            'http://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/js/bootstrap.min.js'
+            'http://raw.github.com/jashkenas/underscore/master/underscore-min.js'
+            'http://raw.github.com/jashkenas/backbone/master/backbone-min.js'
+            '@SensioLabsMaydayBundle/Resources/assets/*.js'
         %}
-        <script type="text/javascript" src="{{ asset_url }}"></script>
+            <script type="text/javascript" src="{{ asset_url }}"></script>
         {% endjavascripts %}
-		<script>
-            (function(w, d, s) {
-                function go() {
-                    var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
-                        if (d.getElementById(id)) {return;}
-                        js = d.createElement(s); js.src = url; js.id = id;
-                        fjs.parentNode.insertBefore(js, fjs);
-                    };
-                    load('https://connect.sensiolabs.com/sln.js?customize_url={{ url('sln_customize') }}', 'sln_bar');
-                }
-                if (w.addEventListener) { w.addEventListener("load", go, false); }
-                else if (w.attachEvent) { w.attachEvent("onload",go); }
-            } (window, document, 'script'));
-            (function () {
-                var s = document.createElement('link');
-                s.rel = 'stylesheet';
-                s.href = 'https://connect.sensiolabs.com/css/sln.css';
-                var x = document.getElementsByTagName('title')[0];
-                x.parentNode.insertBefore(s, x);
-            })();
+
+        <script type="text/javascript">
+
+            var socket = new mayday.Socket(500)
+                .connect('{{ react.host }}', '{{ react.port }}')
+                .ping(function (status) {
+                    $('#react-status').addClass(status ? 'up' : 'down');
+                    $('#users-list').append('<li><a>React server is down :-(</a></li>');
+                });
+
+            //var users = new mayday.Users(socket)
+            //    .register({{ mayday_user_json(app.user.username) }})
+            //    .render($('#users-list'));
+
         </script>
+
+        {% block javascript '' %}
 	</body>
 </html>

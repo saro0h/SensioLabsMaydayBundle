@@ -6,6 +6,7 @@
 
     <parameters>
         <parameter key="sensiolabs_mayday.notifier.chain.class">SensioLabs\Bundle\MaydayBundle\Notifier\NotifierChain</parameter>
+        <parameter key="sensiolabs_mayday.notifier.react.class">SensioLabs\Bundle\MaydayBundle\Notifier\ReactNotifier</parameter>
     </parameters>
 
     <services>
